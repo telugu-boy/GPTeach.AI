@@ -21,7 +21,6 @@ export default function AppLayout() {
       <main className="flex-1 min-h-0">
         <Outlet />
       </main>
-
     </div>
   );
 }
