@@ -1,29 +1,67 @@
 // src/components/Nav.tsx (Updated)
 
 import { Link, NavLink } from 'react-router-dom';
-import { BookOpen, ListChecks, LayoutTemplate, Library, Settings, FileText, ClipboardEdit } from 'lucide-react';
+import { Home, ClipboardEdit, LayoutTemplate, ListChecks, Library, FileText, Settings, BookOpen } from 'lucide-react';
 
 export default function Nav() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    'px-3 py-2 rounded-xl hover:bg-emerald-100/60 dark:hover:bg-emerald-900/30 ' +
-    (isActive ? 'bg-emerald-100/80 dark:bg-emerald-900/40 ' : '');
+    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ' +
+    (isActive
+      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-50'
+      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300');
 
   return (
-    <div className="flex items-center justify-between mb-6">
-      <Link to="/" className="flex items-center gap-2 text-2xl font-semibold">
-        <span className="inline-block h-8 w-8 rounded-xl bg-accent-500"></span>
-        Lesson Planner
-      </Link>
-      <nav className="flex gap-2 text-sm">
-        <NavLink to="/" className={linkClass}><BookOpen className="inline h-4 w-4 mr-1" /> Builder</NavLink>
-        {/* New Link to the AI Planner Route */}
-        <NavLink to="/planner" className={linkClass}><ClipboardEdit className="inline h-4 w-4 mr-1" /> AI Planner</NavLink>
-        <NavLink to="/templates" className={linkClass}><LayoutTemplate className="inline h-4 w-4 mr-1" /> Templates</NavLink>
-        <NavLink to="/outcomes" className={linkClass}><ListChecks className="inline h-4 w-4 mr-1" /> Outcomes</NavLink>
-        <NavLink to="/library" className={linkClass}><Library className="inline h-4 w-4 mr-1" /> Materials</NavLink>
-        <NavLink to="/drafts" className={linkClass}><FileText className="inline h-4 w-4 mr-1" /> Drafts</NavLink>
-        <NavLink to="/settings" className={linkClass}><Settings className="inline h-4 w-4 mr-1" /> Settings</NavLink>
-      </nav>
-    </div>
+    <aside className="w-64 flex-shrink-0 h-screen flex flex-col bg-white dark:bg-slate-950/80 border-r border-slate-200 dark:border-slate-800">
+      <div className="p-4">
+        <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-slate-800 dark:text-slate-100 mb-8">
+          <span className="p-2 rounded-lg bg-emerald-500 text-white">
+            <BookOpen size={20} />
+          </span>
+          <span>Lesson Planner</span>
+        </Link>
+        
+        <nav className="flex flex-col gap-2">
+          <NavLink to="/" className={linkClass} end>
+            <Home size={18} />
+            <span>Home</span>
+          </NavLink>
+          
+          <NavLink to="/drafts" className={linkClass}>
+            <FileText size={18} />
+            <span>Drafts</span>
+          </NavLink>
+          
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <h3 className="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Teaching Tools</h3>
+
+            <div className="flex flex-col gap-2">
+              <NavLink to="/planner" className={linkClass}>
+                <ClipboardEdit size={18} />
+                <span>AI Planner</span>
+              </NavLink>
+              <NavLink to="/templates" className={linkClass}>
+                <LayoutTemplate size={18} />
+                <span>Templates</span>
+              </NavLink>
+              <NavLink to="/outcomes" className={linkClass}>
+                <ListChecks size={18} />
+                <span>Outcomes</span>
+              </NavLink>
+              <NavLink to="/library" className={linkClass}>
+                <Library size={18} />
+                <span>Materials</span>
+              </NavLink>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div className="mt-auto p-4">
+        <NavLink to="/settings" className={linkClass}>
+          <Settings size={18} />
+          <span>Settings</span>
+        </NavLink>
+      </div>
+    </aside>
   );
 }

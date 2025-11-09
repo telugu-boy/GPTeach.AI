@@ -27,13 +27,13 @@
   "devDependencies": {
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
-    "vite": "^5.4.21"
+    "vite": "^7.2.2"
   },
   "description": "Glassmorphic React + TypeScript app for generating and editing lesson plans from prompts, templates, or curriculum outcomes (Alberta POS-ready, extensible to others).",
   "main": "postcss.config.js",

@@ -38,9 +38,8 @@ Use the following structure: Objectives, Materials, Prior Knowledge, Timed Activ
   }
 
   return (
-    // This wrapper ensures the page content is centered and scrolls correctly within the new AppLayout.
-    <div className="max-w-7xl mx-auto px-4 h-full overflow-y-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6">
+    <div className="p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <GlassCard>
             <div className="flex items-center justify-between mb-4">
