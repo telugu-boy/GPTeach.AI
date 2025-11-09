@@ -5,9 +5,35 @@ import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '../app/store'
 import GlassCard from '../components/GlassCard'
 import TemplatePreview from '../components/TemplatePreview'
-import type { TemplateField, Template } from '../lib/types'
+import type { TemplateField, Template, TemplatePreviewVariant } from '../lib/types'
 import { applyTemplateToPlan } from '../features/plans/plansSlice'
 import { labelForField } from '../lib/templateFields'
+
+const AUTO_TEMPLATE_VARIANTS: Array<{
+  id: string
+  name: string
+  summary: string
+  previewVariant: TemplatePreviewVariant
+}> = [
+  {
+    id: 'classic',
+    name: 'Auto template · Classic table',
+    summary: 'Traditional two-column table for direct data entry.',
+    previewVariant: 'classic'
+  },
+  {
+    id: 'split',
+    name: 'Auto template · Logistics grid',
+    summary: 'Compact grid for logistics with detailed blocks for instruction.',
+    previewVariant: 'split'
+  },
+  {
+    id: 'sectioned',
+    name: 'Auto template · Sectioned storyboard',
+    summary: 'Grouped panels for logistics, learning design, and reflection.',
+    previewVariant: 'sectioned'
+  }
+]
 
 export default function Templates() {
   const dispatch = useDispatch()
@@ -28,18 +54,20 @@ export default function Templates() {
     return items.filter((tpl) => selectedFields.every((f) => tpl.fields.includes(f)))
   }, [items, selectedFields])
 
-  const generatedTemplate = useMemo(() => {
-    if (filteredTemplates.length > 0 || selectedFields.length === 0) return undefined
-    const sortedFields = [...selectedFields]
-    return {
-      id: `generated-${sortedFields.join('-')}`,
-      name: 'Auto-generated template',
-      summary: 'Built from your selected subheadings. Adjust freely after applying.',
-      fields: sortedFields
-    } as Template
+  const generatedTemplates = useMemo(() => {
+    if (filteredTemplates.length > 0 || selectedFields.length === 0) return []
+    const orderedFields = [...selectedFields]
+    const key = [...selectedFields].sort().join('-')
+    return AUTO_TEMPLATE_VARIANTS.map((variant) => ({
+      id: `generated-${variant.id}-${key}`,
+      name: variant.name,
+      summary: variant.summary,
+      fields: orderedFields,
+      previewVariant: variant.previewVariant
+    })) as Template[]
   }, [filteredTemplates.length, selectedFields])
 
-  const templatesToRender = generatedTemplate ? [generatedTemplate] : filteredTemplates
+  const templatesToRender = generatedTemplates.length ? generatedTemplates : filteredTemplates
 
   const toggleField = (field: TemplateField) => {
     setSelectedFields((prev) => (prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]))
@@ -116,7 +144,7 @@ export default function Templates() {
       <div className="lg:col-span-3 space-y-4">
         {templatesToRender.map((tpl) => {
           const isApplied = currentPlan?.templateId === tpl.id
-          const isGenerated = generatedTemplate?.id === tpl.id
+          const isGenerated = generatedTemplates.some((gen) => gen.id === tpl.id)
           return (
             <GlassCard key={tpl.id} className="space-y-3">
               <div className="flex items-start justify-between gap-3">
@@ -146,7 +174,7 @@ export default function Templates() {
               <div>
                 <p className="text-sm font-semibold mb-2">Preview</p>
                 <div className="max-h-80 overflow-auto rounded-lg">
-                  <TemplatePreview fields={tpl.fields} />
+                  <TemplatePreview fields={tpl.fields} variant={tpl.previewVariant} />
                 </div>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

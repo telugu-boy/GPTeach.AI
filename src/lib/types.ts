@@ -85,6 +85,8 @@ export type TemplateScaffold = Partial<{
   references: string
 }>
 
+export type TemplatePreviewVariant = 'classic' | 'split' | 'sectioned'
+
 export type Template = {
   id: string
   name: string
@@ -92,6 +94,7 @@ export type Template = {
   fields: TemplateField[]
   variables?: string[] // e.g., ['{duration}', '{grade}']
   scaffold?: TemplateScaffold
+  previewVariant?: TemplatePreviewVariant
 }
 
 export type RubricLevel = {
