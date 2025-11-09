@@ -1,24 +1,14 @@
 
 import { createSlice, nanoid, PayloadAction } from '@reduxjs/toolkit'
 import type { Template, TemplateField } from '../../lib/types'
+import { lessonPlanTemplates } from '../../lib/templatesData'
 
 type TemplatesState = {
   items: Template[]
 }
 
-const defaultTemplate: Template = {
-  id: 'default',
-  name: 'Alberta POS - Core',
-  fields: [
-    'title','grade','subject','duration','outcomes','objectives',
-    'materials','priorKnowledge','activities','assessment','differentiation',
-    'extensions','references','rubric'
-  ],
-  variables: ['{duration}','{grade}','{subject}','{outcomeCodes}']
-}
-
 const initialState: TemplatesState = {
-  items: [defaultTemplate]
+  items: lessonPlanTemplates
 }
 
 const templatesSlice = createSlice({

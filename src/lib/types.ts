@@ -5,35 +5,9 @@ export type Outcome = {
   code: string // e.g., 'ELA6-1.1'
   description: string
   jurisdiction: 'Alberta' | 'Other'
-}
-
-export type Class = {
-  id: string
-  name: string
-  section: string
-}
-
-export type TemplateField =
-  | 'title'
-  | 'grade'
-  | 'subject'
-  | 'duration'
-  | 'outcomes'
-  | 'objectives'
-  | 'materials'
-  | 'priorKnowledge'
-  | 'activities'
-  | 'assessment'
-  | 'differentiation'
-  | 'extensions'
-  | 'references'
-  | 'rubric'
-
-export type Template = {
-  id: string
-  name: string
-  fields: TemplateField[]
-  variables?: string[] // e.g., ['{duration}', '{grade}']
+  gradeLabel?: string
+  strand?: string
+  strandSlug?: string
 }
 
 export type TimedActivity = {
@@ -62,6 +36,73 @@ export type Plan = {
   extensions: string
   references: string
   rubric: Rubric
+}
+
+export type Class = {
+  id: string
+  name: string
+  section: string
+}
+
+export type TemplateField =
+  | 'title'
+  | 'date'
+  | 'grade'
+  | 'subject'
+  | 'school'
+  | 'teacherName'
+  | 'courseLevel'
+  | 'lessonTime'
+  | 'location'
+  | 'duration'
+  | 'outcomes'
+  | 'objectives'
+  | 'materials'
+  | 'resources'
+  | 'priorKnowledge'
+  | 'activities'
+  | 'assessment'
+  | 'differentiation'
+  | 'extensions'
+  | 'references'
+  | 'rubric'
+  | 'safety'
+  | 'essentialQuestions'
+  | 'essentialVocabulary'
+  | 'crossCurricular'
+  | 'anticipatorySet'
+  | 'bodySequence'
+  | 'closing'
+  | 'timedActivities'
+  | 'understandingChecks'
+  | 'studentFeedback'
+  | 'lookingAhead'
+
+export type TemplateScaffold = Partial<{
+  title: string
+  grade: string
+  subject: string
+  duration: number
+  objectives: string
+  materials: string[]
+  priorKnowledge: string
+  activities: TimedActivity[]
+  assessment: string
+  differentiation: string
+  extensions: string
+  references: string
+}>
+
+export type TemplatePreviewVariant = 'classic' | 'split' | 'sectioned'
+
+export type Template = {
+  id: string
+  name: string
+  summary?: string
+  fields: TemplateField[]
+  variables?: string[] // e.g., ['{duration}', '{grade}']
+  scaffold?: TemplateScaffold
+  previewVariant?: TemplatePreviewVariant
 }
 
 export type RubricLevel = {

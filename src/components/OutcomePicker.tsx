@@ -2,7 +2,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '../app/store'
-import { setOutcomeFilters } from '../features/outcomes/outcomesSlice'
+import { fetchOutcomes, setOutcomeFilters } from '../features/outcomes/outcomesSlice'
 import type { Outcome } from '../lib/types'
 
 export default function OutcomePicker({
@@ -13,13 +13,28 @@ export default function OutcomePicker({
   onChange: (items: Outcome[]) => void
 }) {
   const dispatch = useDispatch()
-  const { items, filters } = useSelector((s: RootState) => s.outcomes)
+  const { items, filters, status, error } = useSelector((s: RootState) => s.outcomes)
 
-  const filtered = items.filter(o =>
-    (!filters.subject || o.subject === filters.subject) &&
-    (!filters.grade || o.grade === filters.grade) &&
-    (!filters.query || (o.code + ' ' + o.description).toLowerCase().includes(filters.query.toLowerCase()))
-  )
+  React.useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchOutcomes())
+    }
+  }, [dispatch, status])
+
+  const subjectFilter = filters.subject.trim().toLowerCase()
+  const gradeFilter = filters.grade.trim().toLowerCase()
+  const queryFilter = filters.query.trim().toLowerCase()
+
+  const filtered = items.filter((o) => {
+    const matchesSubject = !subjectFilter || o.subject.toLowerCase().includes(subjectFilter)
+    const matchesGrade =
+      !gradeFilter ||
+      o.grade.toLowerCase().includes(gradeFilter) ||
+      (o.gradeLabel ?? '').toLowerCase().includes(gradeFilter)
+    const haystack = `${o.code} ${o.description}`.toLowerCase()
+    const matchesQuery = !queryFilter || haystack.includes(queryFilter)
+    return matchesSubject && matchesGrade && matchesQuery
+  })
 
   const toggle = (o: Outcome) => {
     const exists = selected.some(x => x.id === o.id)
@@ -37,7 +52,15 @@ export default function OutcomePicker({
          className="px-3 py-2 rounded-xl bg-white/70 dark:bg-gray-800/50 border border-white/40 dark:border-gray-700" />
       </div>
       <div className="max-h-64 overflow-auto rounded-xl border border-white/40 dark:border-gray-700 bg-white/60 dark:bg-gray-800/40">
-        {filtered.map((o) => (
+        {status === 'loading' && (
+          <div className="p-3 text-sm text-gray-600 dark:text-gray-300">Loading outcomes…</div>
+        )}
+        {status === 'failed' && (
+          <div className="p-3 text-sm text-red-600 dark:text-red-400">
+            {error ?? 'Unable to load outcomes. Check your Firebase configuration.'}
+          </div>
+        )}
+        {status === 'succeeded' && filtered.map((o) => (
           <label key={o.id} className="flex items-start gap-2 p-2 hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 cursor-pointer">
             <input type="checkbox" checked={selected.some(s => s.id === o.id)} onChange={() => toggle(o)} />
             <div>
@@ -46,7 +69,9 @@ export default function OutcomePicker({
             </div>
           </label>
         ))}
-        {filtered.length === 0 && <div className="p-3 text-sm text-gray-500">No outcomes match your filters.</div>}
+        {status === 'succeeded' && filtered.length === 0 && (
+          <div className="p-3 text-sm text-gray-500">No outcomes match your filters.</div>
+        )}
       </div>
     </div>
   )
