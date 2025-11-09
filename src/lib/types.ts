@@ -42,6 +42,11 @@ export type Class = {
   id: string
   name: string
   section: string
+  grade?: string
+  subject?: string
+  semester?: string
+  color: string;
+  archived?: boolean;
 }
 
 export type TemplateField =
