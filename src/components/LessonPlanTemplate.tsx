@@ -1,136 +1,76 @@
-// src/components/LessonPlanTemplate.tsx (Updated)
-
-import React from 'react';
-import { nanoid } from 'nanoid';
-import { Plus, Trash2 } from 'lucide-react';
-import InlineToolbarEditor from './InlineToolbarEditor';
-
-// --- TYPES ---
-type Cell = {
-  id: string;
-  content: string; // HTML content from the editor
-  placeholder: string;
-  colSpan?: number;
-};
-
-type Row = {
-  id: string;
-  cells: Cell[];
-  isHeader?: boolean;
-};
-
-// --- INITIAL STATE FACTORY ---
-const createInitialPlan = (): Row[] => [
+/*
+JSON Schema for the 'tableContent' property of a Plan object:
+[
   {
-    id: nanoid(),
-    cells: [
-      { id: nanoid(), content: 'Date:', placeholder: 'Date', colSpan: 1 },
-      { id: nanoid(), content: 'Grade/Class:', placeholder: 'Grade/Class', colSpan: 1 },
-      { id: nanoid(), content: 'Name:', placeholder: 'Name', colSpan: 1 },
+    "id": "string", // Unique ID for the row
+    "cells": [
+      {
+        "id": "string",        // Unique ID for the cell
+        "content": "string",     // HTML content from the rich text editor
+        "placeholder": "string", // Placeholder text for the editor
+        "colSpan": "number"      // Optional, defaults to 1, determines cell width in a 3-column grid
+      }
     ],
-  },
-  {
-    id: nanoid(),
-    cells: [
-      { id: nanoid(), content: 'Course/level:', placeholder: 'Course/level', colSpan: 1 },
-      { id: nanoid(), content: 'School:', placeholder: 'School', colSpan: 1 },
-      { id: nanoid(), content: 'Lesson time:', placeholder: 'Lesson time', colSpan: 1 },
-    ],
-  },
-  {
-    id: nanoid(),
-    cells: [
-      { id: nanoid(), content: 'Prerequisites/Previous Knowledge:', placeholder: '', colSpan: 2 },
-      { id: nanoid(), content: 'Location/facility:', placeholder: '', colSpan: 1 },
-    ],
-  },
-  {
-    id: nanoid(),
-    cells: [
-      { id: nanoid(), content: 'Outcome(s) (quoted from program of studies):', placeholder: '', colSpan: 2 },
-      { id: nanoid(), content: 'Resources (e.g., materials for teacher and/or learner, technical requirements):', placeholder: '', colSpan: 1 },
-    ],
-  },
-  {
-    id: nanoid(),
-    cells: [
-      { id: nanoid(), content: 'Goal of this lesson/demo (what will students know, understand and be able to do after this lesson):', placeholder: '', colSpan: 2 },
-      { id: nanoid(), content: 'Safety Considerations:', placeholder: '', colSpan: 1 },
-    ],
-  },
-  {
-    id: nanoid(),
-    cells: [{ id: nanoid(), content: 'Essential question(s):', placeholder: '', colSpan: 3 }],
-  },
-  {
-    id: nanoid(),
-    cells: [{ id: nanoid(), content: 'Essential vocabulary:', placeholder: '', colSpan: 3 }],
-  },
-  {
-    id: nanoid(),
-    cells: [{ id: nanoid(), content: 'Cross-curricular connections (opportunities for synthesis and application) - choose specific outcomes.', placeholder: '', colSpan: 3 }],
-  },
-  {
-    id: nanoid(),
-    cells: [{ id: nanoid(), content: 'Differentiated instructions (i.e., select one student and select one group and provide detailed instructions):', placeholder: '', colSpan: 3 }],
-  },
-  {
-    id: nanoid(),
-    isHeader: true,
-    cells: [
-        { id: nanoid(), content: '<b>Time for activity (in minutes)</b>', placeholder: '', colSpan: 1 },
-        { id: nanoid(), content: '<b>Description of activity, New learning</b>', placeholder: '', colSpan: 1 },
-        { id: nanoid(), content: '<b>Check for understanding (formative, summative assessments)</b>', placeholder: '', colSpan: 1 },
-    ]
-  },
-  {
-    id: nanoid(),
-    cells: [
-        { id: nanoid(), content: '', placeholder: 'Anticipatory set/hook/introduction', colSpan: 1 },
-        { id: nanoid(), content: '', placeholder: 'Body/activities/strategies (this section should be VERY detailed)', colSpan: 1 },
-        { id: nanoid(), content: '', placeholder: 'Closing: 1. real world, community connections, 2. Student Feedback opportunities, 3. Looking ahead', colSpan: 1 },
-    ]
+    "isHeader": "boolean" // Optional, for styling header rows differently
   }
-];
+]
+*/
+import React from 'react';
+import { Plus, Trash2 } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState } from '../app/store';
+import { updatePlan, updatePlanCell, addPlanRow, removePlanRow } from '../features/plans/plansSlice';
+import InlineToolbarEditor from './InlineToolbarEditor';
+import ExportControls from './ExportControls';
 
-
-// --- MAIN COMPONENT ---
 export default function LessonPlanTemplate() {
-  const [planRows, setPlanRows] = React.useState<Row[]>(createInitialPlan());
+  const dispatch = useDispatch();
+  const plans = useSelector((s: RootState) => s.plans.items);
+  const currentId = useSelector((s: RootState) => s.plans.currentId) || plans[0]?.id;
+  const plan = plans.find(p => p.id === currentId);
 
-  const updateCell = (rowId: string, cellId: string, newContent: string) => {
-    setPlanRows((prevRows) =>
-      prevRows.map((row) => {
-        if (row.id === rowId) {
-          return {
-            ...row,
-            cells: row.cells.map((cell) =>
-              cell.id === cellId ? { ...cell, content: newContent } : cell
-            ),
-          };
-        }
-        return row;
-      })
+  if (!plan) {
+    return (
+      <div className="p-8 text-center text-slate-500">
+        Please create or select a lesson plan to begin.
+      </div>
     );
+  }
+
+  const { tableContent: planRows, id: planId } = plan;
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(updatePlan({ id: planId, title: e.target.value }));
   };
 
-  const addRow = () => {
-    const newRow: Row = {
-        id: nanoid(),
-        cells: [{ id: nanoid(), content: '', placeholder: 'New section', colSpan: 3 }]
-    };
-    setPlanRows([...planRows, newRow]);
+  const handleUpdateCell = (rowId: string, cellId: string, newContent: string) => {
+    dispatch(updatePlanCell({ planId, rowId, cellId, content: newContent }));
+  };
+
+  const handleAddRow = () => {
+    dispatch(addPlanRow({ planId }));
   };
   
-  const removeRow = (rowId: string) => {
-      setPlanRows(planRows.filter(row => row.id !== rowId));
+  const handleRemoveRow = (rowId: string) => {
+    dispatch(removePlanRow({ planId, rowId }));
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 font-sans text-sm">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 font-sans text-sm">
+        <div className="flex justify-between items-center mb-6 border-b border-slate-200 dark:border-slate-700 pb-4">
+            <input 
+                type="text"
+                value={plan.title}
+                onChange={handleTitleChange}
+                placeholder="Untitled Lesson Plan"
+                className="w-full text-2xl md:text-3xl font-bold bg-transparent focus:outline-none text-slate-800 dark:text-slate-100"
+            />
+            <ExportControls />
+        </div>
+
         <div className="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
             {planRows.map((row) => (
-                <div key={row.id} className="group flex border-b border-slate-300 dark:border-slate-700">
+                <div key={row.id} className="group flex border-b border-slate-300 dark:border-slate-700 last:border-b-0">
                     <div className="grid grid-cols-3 flex-1">
                         {row.cells.map((cell) => (
                             <div
@@ -140,7 +80,7 @@ export default function LessonPlanTemplate() {
                             >
                                 <InlineToolbarEditor
                                     value={cell.content}
-                                    onChange={(newContent) => updateCell(row.id, cell.id, newContent)}
+                                    onChange={(newContent) => handleUpdateCell(row.id, cell.id, newContent)}
                                     placeholder={cell.placeholder}
                                 />
                             </div>
@@ -148,7 +88,7 @@ export default function LessonPlanTemplate() {
                     </div>
                      {!row.isHeader && (
                         <button 
-                            onClick={() => removeRow(row.id)} 
+                            onClick={() => handleRemoveRow(row.id)} 
                             className="w-8 flex items-center justify-center text-slate-400 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/40 transition-opacity">
                             <Trash2 size={16}/>
                         </button>
@@ -158,7 +98,7 @@ export default function LessonPlanTemplate() {
         </div>
         <div className="mt-2">
             <button 
-                onClick={addRow} 
+                onClick={handleAddRow} 
                 className="w-full flex items-center justify-center gap-2 p-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
                 <Plus size={16} /> Add Section
             </button>
