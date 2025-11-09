@@ -1,4 +1,3 @@
-
 export type Outcome = {
   id: string
   subject: string
@@ -37,6 +36,12 @@ export type Plan = {
   extensions: string
   references: string
   rubric: Rubric
+}
+
+export type Class = {
+  id: string
+  name: string
+  section: string
 }
 
 export type TemplateField =

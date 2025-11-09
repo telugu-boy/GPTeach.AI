@@ -1,7 +1,6 @@
-
 import type { Middleware } from '@reduxjs/toolkit'
 
-const PERSIST_KEYS = ['templates', 'plans'] as const
+const PERSIST_KEYS = ['templates', 'plans', 'classes'] as const
 const STORAGE_KEY = 'lesson_planner_state_v1'
 
 function load(): Record<string, unknown> | undefined {
