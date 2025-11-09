@@ -6,6 +6,9 @@ export type Outcome = {
   code: string // e.g., 'ELA6-1.1'
   description: string
   jurisdiction: 'Alberta' | 'Other'
+  gradeLabel?: string
+  strand?: string
+  strandSlug?: string
 }
 
 export type TimedActivity = {
