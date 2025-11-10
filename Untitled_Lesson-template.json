@@ -1,0 +1,212 @@
+[
+  {
+    "id": "OBJmwZwVqSoMaumui08jl",
+    "cells": [
+      {
+        "id": "ntCyWRb4bUd7h-d-m7ZBS",
+        "content": "<strong>Date:</strong>",
+        "placeholder": "Date",
+        "colSpan": 1,
+        "size": 33.3333333334
+      },
+      {
+        "id": "Anr5Dv5kDtPj2sMZztaWt",
+        "content": "<strong>Grade/Class:</strong>",
+        "placeholder": "Grade/Class",
+        "colSpan": 1,
+        "size": 33.3333333333
+      },
+      {
+        "id": "ea0K_uPDt3e2eb5he9eak",
+        "content": "<strong>Name:</strong>",
+        "placeholder": "Name",
+        "colSpan": 1,
+        "size": 33.3333333333
+      }
+    ]
+  },
+  {
+    "id": "75D9u25jB5HX58DvNwhAR",
+    "cells": [
+      {
+        "id": "GY78nBDGbASotvdFOAVTb",
+        "content": "<strong>Course/level:</strong>",
+        "placeholder": "Course/level",
+        "colSpan": 1,
+        "size": 33.3333333334
+      },
+      {
+        "id": "TCMRK9qkUkOSCkU4dIc4_",
+        "content": "<strong>School:</strong>",
+        "placeholder": "School",
+        "colSpan": 1,
+        "size": 33.3333333333
+      },
+      {
+        "id": "hFY4CJ67GD6mdx11lv8aC",
+        "content": "<strong>Lesson time:</strong>",
+        "placeholder": "Lesson time",
+        "colSpan": 1,
+        "size": 33.3333333333
+      }
+    ]
+  },
+  {
+    "id": "Nirlha4kFd2TfPtcQ9lka",
+    "cells": [
+      {
+        "id": "kuWe1Y6WqtRJZF_1ngTbP",
+        "content": "<strong>Prerequisites/Previous Knowledge:</strong>",
+        "placeholder": "Students should have a basic understanding of...",
+        "colSpan": 2,
+        "size": 50
+      },
+      {
+        "id": "svlkmcu7q7AOXJmq4zqXO",
+        "content": "<strong>Location/facility:</strong>",
+        "placeholder": "e.g., Classroom, Gym",
+        "colSpan": 1,
+        "size": 50
+      }
+    ]
+  },
+  {
+    "id": "fq2BO7cMtizmV-gsqQSB3",
+    "cells": [
+      {
+        "id": "wT7bkY5NXqucX5b3Rm2BN",
+        "content": "<strong>Outcome(s) (quoted from program of studies):</strong>",
+        "placeholder": "e.g., SCI10-1: Analyze the structure of cells",
+        "colSpan": 2,
+        "size": 50
+      },
+      {
+        "id": "Jj_BGzL2GTeGqz-Fa98WB",
+        "content": "<strong>Resources (e.g., materials for teacher and/or learner, technical requirements):</strong>",
+        "placeholder": "Textbooks, video links, chart paper",
+        "colSpan": 1,
+        "size": 50
+      }
+    ]
+  },
+  {
+    "id": "YdtWErw66XquJfH8CqrbQ",
+    "cells": [
+      {
+        "id": "nTUsBDex0gQf7-FH-Fwjq",
+        "content": "<strong>Goal of this lesson/demo (what will students know, understand and be able to do after this lesson):</strong>",
+        "placeholder": "What will students know, understand, and be able to do?",
+        "colSpan": 2,
+        "size": 50
+      },
+      {
+        "id": "ilg1UY6AcDDIx7AAA-dF9",
+        "content": "<strong>Safety Considerations:</strong>",
+        "placeholder": "e.g., Proper handling of lab equipment",
+        "colSpan": 1,
+        "size": 50
+      }
+    ]
+  },
+  {
+    "id": "1NHxsJmNs7JG1-grem3NR",
+    "cells": [
+      {
+        "id": "ITvSU2I7X6p7NvZ3IMIv1",
+        "content": "<strong>Essential question(s):</strong>",
+        "placeholder": "Enter essential questions...",
+        "colSpan": 3,
+        "size": 100
+      }
+    ]
+  },
+  {
+    "id": "88aDjbVSTcKI6WXg4GIrU",
+    "cells": [
+      {
+        "id": "6U2UinhZ_0Ic7rwEcPUzZ",
+        "content": "<strong>Essential vocabulary:</strong>",
+        "placeholder": "Enter essential vocabulary...",
+        "colSpan": 3,
+        "size": 100
+      }
+    ]
+  },
+  {
+    "id": "L2xcN8XPiZJfO7juO33qC",
+    "cells": [
+      {
+        "id": "0btjoCM3FRkb8u5A6oSpI",
+        "content": "<strong>Cross-curricular connections (opportunities for synthesis and application) - choose specific outcomes.</strong>",
+        "placeholder": "Enter cross-curricular connections...",
+        "colSpan": 3,
+        "size": 100
+      }
+    ]
+  },
+  {
+    "id": "mIbGBM-2zuiayeXda7hjX",
+    "cells": [
+      {
+        "id": "5O_tEByGxry0cSpaelwta",
+        "content": "<strong>Differentiated instructions (i.e., select one student and select one group and provide detailed instructions):</strong>",
+        "placeholder": "Enter differentiated instructions...",
+        "colSpan": 3,
+        "size": 100
+      }
+    ]
+  },
+  {
+    "id": "6dUWeLWsM6zOUb-2dJXWF",
+    "isHeader": true,
+    "cells": [
+      {
+        "id": "KeJYZwbanQj7Lw7pVstqI",
+        "content": "<b>Time for activity (in minutes)</b>",
+        "placeholder": "",
+        "colSpan": 1,
+        "size": 33.3333333334
+      },
+      {
+        "id": "hlXgRKS4O-f_24j4VkgCl",
+        "content": "<b>Description of activity, New learning</b>",
+        "placeholder": "",
+        "colSpan": 1,
+        "size": 33.3333333333
+      },
+      {
+        "id": "IRqE-gjifpvQ9muqi1WfP",
+        "content": "<b>Check for understanding (formative, summative assessments)</b>",
+        "placeholder": "",
+        "colSpan": 1,
+        "size": 33.3333333333
+      }
+    ]
+  },
+  {
+    "id": "jvj6MTrJSzrO3vl0LHVsq",
+    "cells": [
+      {
+        "id": "-AZbnvhAVoqKeKmCWHW5d",
+        "content": "",
+        "placeholder": "Anticipatory set/hook/introduction",
+        "colSpan": 1,
+        "size": 33.3333333334
+      },
+      {
+        "id": "p-oTXlVEty2cGdsZ50w4x",
+        "content": "",
+        "placeholder": "Body/activities/strategies (this section should be VERY detailed)",
+        "colSpan": 1,
+        "size": 33.3333333333
+      },
+      {
+        "id": "UdcNDdD_Qh_Afqov4II2a",
+        "content": "<ul><li>real world, community connections</li><li>Student Feedback opportunities</li><li>Looking ahead</li></ul>",
+        "placeholder": "Closing",
+        "colSpan": 1,
+        "size": 33.3333333333
+      }
+    ]
+  }
+]

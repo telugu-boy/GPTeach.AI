@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Plus, Minus, GripVertical, Bold, Italic, Underline as UnderlineIcon, Strikethrough, Link as LinkIcon, List, ListOrdered, Pilcrow, CheckSquare, ChevronDown, Highlighter, RemoveFormatting } from 'lucide-react';
+import React, { createContext, useState, useContext, useMemo, useRef, useEffect } from 'react';
+import { Plus, Minus, GripVertical, Bold, Italic, Underline as UnderlineIcon, Strikethrough, Link as LinkIcon, List, ListOrdered, CheckSquare, ChevronDown, Highlighter, RemoveFormatting, Sparkles } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import type { RootState } from '../app/store';
@@ -29,7 +29,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import Highlight from '@tiptap/extension-highlight';
 import { cn } from '../lib/utils';
 import type { Row, Cell } from '../lib/types';
-
+import AISuggestionPopup from './AISuggestionPopup';
 
 // --- CONTEXT FOR ACTIVE EDITOR --- //
 type EditorContextType = { editor: Editor | null; setEditor: (editor: Editor | null) => void; };
@@ -239,6 +239,11 @@ function SortableCell({ cell, planId, rowId }: { cell: Cell; planId: string; row
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const controlsRef = useRef<HTMLDivElement>(null);
 
+  // AI popup state
+  const [showAI, setShowAI] = useState(false);
+  const [aiPos, setAiPos] = useState<{ top: number; left: number } | null>(null);
+  const aiButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (controlsRef.current && !controlsRef.current.contains(event.target as Node)) {
@@ -260,6 +265,21 @@ function SortableCell({ cell, planId, rowId }: { cell: Cell; planId: string; row
     dispatch(mergePlanCell({ planId, rowId, cellId: cell.id }));
   }
 
+  const openAI = () => {
+    const rect = aiButtonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const top = rect.bottom + window.scrollY + 8;
+    const left = Math.min(rect.left + window.scrollX, window.innerWidth - 420 - 16);
+    setAiPos({ top, left });
+    setShowAI(true);
+  };
+
+  const closeAI = () => setShowAI(false);
+
+  const applyAISuggestion = (text: string) => {
+    dispatch(updatePlanCell({ planId, rowId, cellId: cell.id, content: text }));
+  };
+
   return (
     <Panel defaultSize={cell.size || 25} minSize={10} className="flex !overflow-visible">
         <div ref={setNodeRef} style={style} className="w-full h-full relative group/cell hover:z-20" {...attributes}>
@@ -274,13 +294,25 @@ function SortableCell({ cell, planId, rowId }: { cell: Cell; planId: string; row
                   <>
                     <button {...listeners} className="p-1 rounded-md text-slate-500 cursor-grab active:cursor-grabbing hover:bg-slate-100 dark:hover:bg-slate-700" title="Move Cell"><GripVertical size={14} /></button>
                     <button onClick={() => setIsMenuOpen(true)} className="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700" title="More options"><ChevronDown size={14} /></button>
+                    <button ref={aiButtonRef} onClick={openAI} className="p-1 rounded-md text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30" title="AI Suggestions"><Sparkles size={14} /></button>
                   </>
                 )}
             </div>
+
+            {showAI && aiPos && (
+              <AISuggestionPopup
+                placeholder={cell.placeholder}
+                currentContent={cell.content}
+                position={aiPos}
+                onSelect={applyAISuggestion}
+                onClose={closeAI}
+              />
+            )}
         </div>
     </Panel>
   );
 }
+
 
 
 // --- DRAGGABLE ROW COMPONENT --- //
@@ -384,7 +416,7 @@ export default function LessonPlanTemplate() {
                     <div className="overflow-hidden">
                       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleRowDragEnd}>
                           <SortableContext items={rowIds} strategy={verticalListSortingStrategy}>
-                              {planRows.map((row, index) => <SortableRow key={row.id} row={row} planId={plan.id} rowIndex={index} />)}
+                              {planRows.map((row, index) => <SortableRow key={row.id} row={row as Row} planId={plan.id} rowIndex={index} />)}
                           </SortableContext>
                       </DndContext>
                     </div>

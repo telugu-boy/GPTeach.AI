@@ -25,6 +25,8 @@ export type Cell = {
   placeholder: string;
   colSpan?: number; // Kept for backward compatibility if needed
   size?: number; // Width percentage (0-100) for resizable panels
+  colSpan?: number; // For backward compatibility
+  size?: number; // Width percentage (0-100) for resizable panels
 };
 
 export type Row = {
