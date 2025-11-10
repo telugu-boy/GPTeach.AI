@@ -6,21 +6,15 @@ type PlansState = {
   currentId?: string
 }
 
+// **THE FIX**: This is now the single source of truth for a new plan's structure.
+// All key fields have a placeholder so the AI can target them.
 const createDefaultTable = (): Row[] => [
     {
       id: nanoid(),
       cells: [
-        { id: nanoid(), content: '<strong>Date:</strong>', placeholder: 'Date' },
-        { id: nanoid(), content: '<strong>Grade/Class:</strong>', placeholder: 'Grade/Class' },
-        { id: nanoid(), content: '<strong>Name:</strong>', placeholder: 'Name' },
-      ],
-    },
-    {
-      id: nanoid(),
-      cells: [
-        { id: nanoid(), content: '<strong>Course/level:</strong>', placeholder: 'Course/level' },
-        { id: nanoid(), content: '<strong>School:</strong>', placeholder: 'School' },
-        { id: nanoid(), content: '<strong>Lesson time:</strong>', placeholder: 'Lesson time' },
+        { id: nanoid(), content: '<strong>Grade:</strong>', placeholder: 'Grade' },
+        { id: nanoid(), content: '<strong>Subject:</strong>', placeholder: 'Subject' },
+        { id: nanoid(), content: '<strong>Topic:</strong>', placeholder: 'Topic' },
       ],
     },
     {
@@ -44,29 +38,17 @@ const createDefaultTable = (): Row[] => [
         { id: nanoid(), content: '<strong>Safety Considerations:</strong>', placeholder: 'e.g., Proper handling of lab equipment' },
       ],
     },
-    {
-      id: nanoid(),
-      cells: [{ id: nanoid(), content: '<strong>Essential question(s):</strong>', placeholder: 'Enter essential questions...' }],
-    },
-    {
-      id: nanoid(),
-      cells: [{ id: nanoid(), content: '<strong>Essential vocabulary:</strong>', placeholder: 'Enter essential vocabulary...' }],
-    },
-    {
-      id: nanoid(),
-      cells: [{ id: nanoid(), content: '<strong>Cross-curricular connections (opportunities for synthesis and application) - choose specific outcomes.</strong>', placeholder: 'Enter cross-curricular connections...' }],
-    },
-    {
-      id: nanoid(),
-      cells: [{ id: nanoid(), content: '<strong>Differentiated instructions (i.e., select one student and select one group and provide detailed instructions):</strong>', placeholder: 'Enter differentiated instructions...' }],
-    },
+    { id: nanoid(), cells: [{ id: nanoid(), content: '<strong>Essential question(s):</strong>', placeholder: 'Enter essential questions...' }] },
+    { id: nanoid(), cells: [{ id: nanoid(), content: '<strong>Essential vocabulary:</strong>', placeholder: 'Enter essential vocabulary...' }] },
+    { id: nanoid(), cells: [{ id: nanoid(), content: '<strong>Cross-curricular connections (opportunities for synthesis and application) - choose specific outcomes.</strong>', placeholder: 'Enter cross-curricular connections...' }] },
+    { id: nanoid(), cells: [{ id: nanoid(), content: '<strong>Differentiated instructions (i.e., select one student and select one group and provide detailed instructions):</strong>', placeholder: 'Enter differentiated instructions...' }] },
     {
       id: nanoid(),
       isHeader: true,
       cells: [
-          { id: nanoid(), content: '<b>Time for activity (in minutes)</b>', placeholder: '' },
-          { id: nanoid(), content: '<b>Description of activity, New learning</b>', placeholder: '' },
-          { id: nanoid(), content: '<b>Check for understanding (formative, summative assessments)</b>', placeholder: '' },
+          { id: nanoid(), content: '<b>Time for activity (in minutes)</b>', placeholder: 'Time for activity (in minutes)' },
+          { id: nanoid(), content: '<b>Description of activity, New learning</b>', placeholder: 'Description of activity, New learning' },
+          { id: nanoid(), content: '<b>Check for understanding (formative, summative assessments)</b>', placeholder: 'Check for understanding (formative, summative assessments)' },
       ]
     },
     {
@@ -74,7 +56,7 @@ const createDefaultTable = (): Row[] => [
       cells: [
           { id: nanoid(), content: '', placeholder: 'Anticipatory set/hook/introduction' },
           { id: nanoid(), content: '', placeholder: 'Body/activities/strategies (this section should be VERY detailed)' },
-          { id: nanoid(), content: '<ul><li>real world, community connections</li><li>Student Feedback opportunities</li><li>Looking ahead</li></ul>', placeholder: 'Closing' },
+          { id: nanoid(), content: '', placeholder: 'Closing' },
       ]
     }
 ];
@@ -158,46 +140,22 @@ const plansSlice = createSlice({
         state.items.push(action.payload);
     },
     createPlan(state, action: PayloadAction<CreatePlanPayload>) {
-      const { classId, folderId, title, grade, subject, topic, fields, optionalFieldContent } = action.payload;
-      const tableContent = createTableFromTemplate(fields);
+      const { classId, folderId, title, grade, subject, topic } = action.payload;
 
-      const fieldToCellMarker: Partial<Record<TemplateField, string>> = {
-          outcomes: '<strong>Outcomes:</strong>', objectives: '<strong>Objectives:</strong>', materials: '<strong>Materials & Resources:</strong>', priorKnowledge: '<strong>Prior Knowledge:</strong>', assessment: '<strong>Assessment:</strong>', differentiation: '<strong>Differentiation:</strong>', extensions: '<strong>Extensions:</strong>', references: '<strong>References:</strong>', rubric: '<strong>Rubric:</strong>'
-      };
-
-      if (optionalFieldContent) {
-          for (const [field, content] of Object.entries(optionalFieldContent)) {
-              if (!content) continue;
-              const marker = fieldToCellMarker[field as TemplateField];
-              let cellUpdated = false;
-              if (marker) {
-                  for (const row of tableContent) {
-                      for (const cell of row.cells) {
-                          if (cell.content.includes(marker)) {
-                              cell.content += `<p>${content.replace(/\n/g, '<br>')}</p>`;
-                              cellUpdated = true;
-                              break;
-                          }
-                      }
-                      if (cellUpdated) break;
-                  }
-              } else if (field === 'activities') {
-                  const activitiesHeaderIndex = tableContent.findIndex(row => row.isHeader && row.cells.some(cell => cell.content.includes('Activity Description')));
-                  if (activitiesHeaderIndex !== -1 && activitiesHeaderIndex + 1 < tableContent.length) {
-                      tableContent[activitiesHeaderIndex + 1].cells[1].content = `<p>${content.replace(/\n/g, '<br>')}</p>`;
-                  }
-              }
-          }
-      }
-
+      // **THE FIX**: Create a base plan which already has the correct table structure.
       const newPlan: Plan = {
-          ...emptyPlan(classId, folderId),
-          title, grade, subject, topic,
-          tableContent: [
-              { id: nanoid(), cells: [ { id: nanoid(), content: `<strong>Grade:</strong> ${grade}`, placeholder: '' }, { id: nanoid(), content: `<strong>Subject:</strong> ${subject}`, placeholder: '' }, { id: nanoid(), content: `<strong>Topic:</strong> ${topic}`, placeholder: '' } ] },
-              ...tableContent
-          ],
+        ...emptyPlan(classId, folderId),
+        title, grade, subject, topic,
       };
+
+      // **THE FIX**: Find and correctly populate the content of the placeholder cells.
+      for (const row of newPlan.tableContent) {
+        for (const cell of row.cells) {
+          if (cell.placeholder === 'Grade') cell.content = `<strong>Grade:</strong> ${grade}`;
+          if (cell.placeholder === 'Subject') cell.content = `<strong>Subject:</strong> ${subject}`;
+          if (cell.placeholder === 'Topic') cell.content = `<strong>Topic:</strong> ${topic}`;
+        }
+      }
       
       state.items.unshift(newPlan);
       state.currentId = newPlan.id;
@@ -235,12 +193,30 @@ const plansSlice = createSlice({
       if (plan) plan.outcomes = action.payload.outcomes
     },
     updatePlanCell(state, action: PayloadAction<{ planId: string; rowId: string; cellId: string; content: string }>) {
-        const plan = state.items.find(p => p.id === action.payload.planId);
-        if (plan) {
-            plan.updatedAt = new Date().toISOString();
-            const row = plan.tableContent.find(r => r.id === action.payload.rowId);
-            const cell = row?.cells.find(c => c.id === action.payload.cellId);
-            if (cell) cell.content = action.payload.content;
+        const { planId, rowId, cellId, content } = action.payload;
+        const planIndex = state.items.findIndex(p => p.id === planId);
+
+        if (planIndex !== -1) {
+            const plan = state.items[planIndex];
+            
+            // **THE FIX**: Create new arrays/objects for the path that is being changed.
+            // This is proper immutable updating and guarantees Redux detects the change.
+            const newTableContent = plan.tableContent.map(row => {
+                if (row.id !== rowId) return row;
+
+                const newCells = row.cells.map(cell => {
+                    if (cell.id !== cellId) return cell;
+                    return { ...cell, content };
+                });
+
+                return { ...row, cells: newCells };
+            });
+
+            state.items[planIndex] = {
+                ...plan,
+                tableContent: newTableContent,
+                updatedAt: new Date().toISOString(),
+            };
         }
     },
     addPlanRow(state, action: PayloadAction<{ planId: string, rowIndex?: number }>) {

@@ -215,18 +215,33 @@ function RichTextCellEditor({ value, onChange, placeholder }: { value: string; o
         Placeholder.configure({ placeholder: placeholder || '...' }),
         Highlight.configure({ multicolor: true }),
     ],
-    content: value || '',
+    content: value, // Set initial content
     editorProps: { attributes: { class: 'prose prose-sm max-w-none focus:outline-none px-4 py-3 min-h-[52px] h-full text-[15px] leading-relaxed' } },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     onFocus: ({ editor }) => setEditor(editor),
     onBlur: ({ event }) => {
         const relatedTarget = event.relatedTarget as HTMLElement;
         if (relatedTarget?.closest('.formatting-toolbar-container')) {
-            return; // Don't blur if focus is moving to the toolbar
+            return;
         }
         setEditor(null);
     },
   });
+
+  // ***** THE CRITICAL FIX IS HERE *****
+  // This useEffect hook listens for changes to the `value` prop (from Redux)
+  // and manually updates the Tiptap editor's content if it's different.
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) {
+      const isSame = editor.getHTML() === value;
+      if (!isSame) {
+        // `setContent` updates the editor. `false` prevents this programmatic change
+        // from creating an undo step, which is desired behavior.
+        editor.commands.setContent(value, false);
+      }
+    }
+  }, [value, editor]);
+
   return <EditorContent editor={editor} />;
 }
 
