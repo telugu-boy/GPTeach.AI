@@ -12,14 +12,14 @@ import AppLayout from './routes/AppLayout';
 import Home from './routes/Home';
 import Classes from './routes/Classes';
 import ArchivedClasses from './routes/ArchivedClasses';
-import Builder from './routes/Builder';
 import Templates from './routes/Templates';
 import Outcomes from './routes/Outcomes';
 import Settings from './routes/Settings';
 import LessonPlanner from './routes/LessonPlanner';
-import Library from './routes/Library'; // <-- ADD THIS LINE
+import Library from './routes/Library';
 import ClassDashboard from './routes/ClassDashboard';
 import SignIn from './routes/SignIn';
+import Calendar from './routes/Calendar';
 
 const router = createBrowserRouter([
   {
@@ -34,8 +34,10 @@ const router = createBrowserRouter([
       { path: 'planner', element: <LessonPlanner /> },
       { path: 'templates', element: <Templates /> },
       { path: 'outcomes', element: <Outcomes /> },
+      { path: 'library', element: <Library /> },
       { path: 'settings', element: <Settings /> },
       { path: 'signin', element: <SignIn /> },
+      { path: 'calendar', element: <Calendar /> },
     ],
   },
 ]);

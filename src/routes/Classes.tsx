@@ -12,7 +12,7 @@ const NoClasses = ({ onCreateClick }: { onCreateClick: () => void }) => {
   const navigate = useNavigate();
   
   const handleCreatePlan = () => {
-    navigate('/builder');
+     navigate('/planner');
   }
 
   return (
