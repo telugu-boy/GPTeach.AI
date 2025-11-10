@@ -5,18 +5,12 @@ import { Send, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../app/store';
 import GlassCard from './GlassCard';
-<<<<<<< HEAD
 import InlineToolbarEditor, { InlineToolbarEditorHandle } from './InlineToolbarEditor';
 import { chatWithAI, type ConversationMessage } from '../services/geminiService';
 import { generateCompleteLessonPlan, generateFieldContent, type LessonPlanRequest } from '../services/lessonPlanGeneratorService';
 import { updatePlan, updatePlanCell } from '../features/plans/plansSlice';
 import { setHighlightCellId } from '../features/ui/uiSlice';
 import { searchOutcomes, loadCurriculumData, formatOutcomeForDisplay, getOutcomesByGrade } from '../services/curriculumDataService';
-=======
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
 
 interface Message {
   id: string;
@@ -35,7 +29,6 @@ interface ManualFieldContext {
   suggestion: string;
 }
 
-<<<<<<< HEAD
 const quickPrompts = [
   'Create a complete lesson plan for grade 5 math on fractions',
   'Generate a lesson plan for grade 3 science about ecosystems',
@@ -70,10 +63,6 @@ export default function AIChatInterface() {
   const lastLessonRequestRef = useRef(lastLessonRequest);
   useEffect(() => { lastLessonRequestRef.current = lastLessonRequest; }, [lastLessonRequest]);
   const [activeManualField, setActiveManualField] = useState<ManualFieldContext | null>(null);
-=======
-export default function AIChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([]);
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<InlineToolbarEditorHandle>(null);
@@ -84,23 +73,6 @@ export default function AIChatInterface() {
   const currentId = useSelector((s: RootState) => s.plans.currentId) || plans[0]?.id;
   const currentPlan = plans.find(p => p.id === currentId);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        // Disable heading, blockquote, etc. for a chat interface
-        heading: false,
-        blockquote: false,
-        horizontalRule: false,
-      }),
-      Placeholder.configure({ placeholder: 'Message GPTeach AI...' }),
-    ],
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none px-4 py-3 min-h-[48px] text-[15px] leading-relaxed',
-      },
-    },
-  });
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -109,7 +81,6 @@ export default function AIChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-<<<<<<< HEAD
   const buildContext = (): string => {
     if (!currentPlan || !currentPlan.tableContent) return 'No lesson plan selected.';
     
@@ -124,10 +95,6 @@ export default function AIChatInterface() {
     
     return context.join('\n');
   };
-=======
-  const handleSendMessage = () => {
-    if (!editor || !editor.getText().trim()) return;
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
 
   const summarizeLessonRequest = (info: LessonPlanRequest): string => {
     const parts: string[] = [];
@@ -211,12 +178,11 @@ export default function AIChatInterface() {
     const newMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: editor.getHTML(),
+      content: inputValue,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, newMessage]);
-<<<<<<< HEAD
     setInputValue('');
     setIsLoading(true);
 
@@ -294,9 +260,6 @@ export default function AIChatInterface() {
       const aiResponseText = await chatWithAI(userInput, context, historyForCall);
 
       setChatHistory((prev) => [...prev, { role: 'model', parts: aiResponseText }]);
-=======
-    editor.commands.clearContent(true); // Clear the editor and focus
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
 
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -875,7 +838,6 @@ export default function AIChatInterface() {
     return request;
   };
 
-<<<<<<< HEAD
   const handleQuickPrompt = (prompt: string) => {
     setInputValue(prompt);
     editorRef.current?.setContent(prompt);
@@ -886,8 +848,7 @@ export default function AIChatInterface() {
     window.setTimeout(() => setInputHighlight(false), 250);
   };
 
-=======
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -923,7 +884,6 @@ export default function AIChatInterface() {
                   Welcome to GPTeach AI
                 </h3>
                 <p className="mb-8 max-w-md text-center text-sm text-slate-600 dark:text-slate-400">
-<<<<<<< HEAD
                   I can generate complete lesson plans for you! Just tell me the grade, subject, and topic. I'll fill out all the fields automatically using curriculum data. You can also ask questions or request specific improvements.
                 </p>
                 
@@ -941,10 +901,6 @@ export default function AIChatInterface() {
               ))}
             </div>
           </div>
-=======
-                  I can help you create organized, effective lesson plans in less time. Tell me your subject, grade level, and objectives to get started.
-                </p>
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
               </div>
             ) : (
               /* Messages */
@@ -1069,24 +1025,16 @@ export default function AIChatInterface() {
                   className={`flex-1 overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition-all duration-200 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 ${inputHighlight ? 'ring-2 ring-emerald-400/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''}`}
                   onKeyDown={handleKeyPress}
                 >
-<<<<<<< HEAD
                   <InlineToolbarEditor
                     ref={editorRef}
               value={inputValue}
                     onChange={setInputValue}
                     placeholder="Message GPTeach AI..."
             />
-=======
-                  <EditorContent editor={editor} />
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
                 </div>
             <button
                   onClick={handleSendMessage}
-<<<<<<< HEAD
                   disabled={!inputValue.trim() || isLoading || isUpdatingPlan}
-=======
-                  disabled={!editor || !editor.getText().trim()}
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
                   className="shrink-0 rounded-xl bg-emerald-600 p-3 text-white transition-all hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 dark:bg-emerald-500 dark:hover:bg-emerald-600 dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
                   aria-label="Send message"
                 >

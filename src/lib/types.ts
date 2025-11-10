@@ -19,13 +19,12 @@ export type TimedActivity = {
   details: string
 }
 
-<<<<<<< HEAD
-=======
 export type Cell = {
   id: string;
   content: string; // HTML content from the editor
   placeholder: string;
-  colSpan?: number;
+  colSpan?: number; // For backward compatibility
+  size?: number; // Width percentage (0-100) for resizable panels
 };
 
 export type Row = {
@@ -57,7 +56,7 @@ export type Plan = {
   title: string
   grade: string
   subject: string
-  topic: string;
+  topic?: string;
   duration: number
   outcomes: Outcome[]
   objectives: string
@@ -76,7 +75,6 @@ export type Plan = {
   deletedAt?: string | null;
 }
 
->>>>>>> 7ba6bb5ab70263be12b9cdf41bb033cf5a4ebda4
 export type Class = {
   id: string
   name: string
@@ -120,62 +118,4 @@ export type Template = {
   name: string
   fields: TemplateField[]
   variables?: string[] // e.g., ['{duration}', '{grade}']
-}
-
-export type TimedActivity = {
-  id: string
-  minutes: number
-  title: string
-  details: string
-}
-
-export type Cell = {
-  id: string;
-  content: string; // HTML content from the editor
-  placeholder: string;
-  colSpan?: number; // For backward compatibility
-  size?: number; // Width percentage (0-100) for resizable panels
-};
-
-export type Row = {
-  id: string;
-  cells: Cell[];
-  isHeader?: boolean;
-};
-
-export type Plan = {
-  id: string
-  createdAt: string
-  updatedAt: string
-  templateId?: string
-  title: string
-  grade: string
-  subject: string
-  duration: number
-  outcomes: Outcome[]
-  objectives: string
-  materials: string[]
-  priorKnowledge: string
-  activities: TimedActivity[]
-  assessment: string
-  differentiation: string
-  extensions: string
-  references: string
-  rubric: Rubric
-  tableContent: Row[]
-}
-
-export type RubricLevel = {
-  label: string
-  descriptor: string
-}
-
-export type RubricCriterion = {
-  id: string
-  name: string
-  levels: RubricLevel[]
-}
-
-export type Rubric = {
-  criteria: RubricCriterion[]
 }
