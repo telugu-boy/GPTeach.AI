@@ -17,13 +17,12 @@ import Templates from './routes/Templates';
 import Outcomes from './routes/Outcomes';
 import Settings from './routes/Settings';
 import LessonPlanner from './routes/LessonPlanner';
-
-const Placeholder = ({ title }: { title: string }) => <div className="p-6"><h1 className="text-2xl font-bold">{title}</h1><p>This page is a placeholder.</p></div>;
+import Library from './routes/Library'; // <-- ADD THIS LINE
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <AppLayout />, // AppLayout is the shell for ALL pages.
+    element: <AppLayout />,
     children: [
       { index: true, element: <Home /> },
       { path: 'classes', element: <Classes /> },

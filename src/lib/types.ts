@@ -1,3 +1,5 @@
+// src/lib/types.ts (Corrected)
+
 export type Outcome = {
   id: string
   subject: string
@@ -15,6 +17,34 @@ export type TimedActivity = {
   minutes: number
   title: string
   details: string
+}
+
+export type Cell = {
+  id: string;
+  content: string; // HTML content from the editor
+  placeholder: string;
+  colSpan?: number;
+};
+
+export type Row = {
+  id: string;
+  cells: Cell[];
+  isHeader?: boolean;
+};
+
+export type RubricLevel = {
+  label: string
+  descriptor: string
+}
+
+export type RubricCriterion = {
+  id: string
+  name: string
+  levels: RubricLevel[]
+}
+
+export type Rubric = {
+  criteria: RubricCriterion[]
 }
 
 export type Plan = {
@@ -36,6 +66,7 @@ export type Plan = {
   extensions: string
   references: string
   rubric: Rubric
+  tableContent: Row[] // This property is now correctly included
 }
 
 export type Class = {
@@ -70,61 +101,4 @@ export type Template = {
   name: string
   fields: TemplateField[]
   variables?: string[] // e.g., ['{duration}', '{grade}']
-}
-
-export type TimedActivity = {
-  id: string
-  minutes: number
-  title: string
-  details: string
-}
-
-export type Cell = {
-  id: string;
-  content: string; // HTML content from the editor
-  placeholder: string;
-  colSpan?: number;
-};
-
-export type Row = {
-  id: string;
-  cells: Cell[];
-  isHeader?: boolean;
-};
-
-export type Plan = {
-  id: string
-  createdAt: string
-  updatedAt: string
-  templateId?: string
-  title: string
-  grade: string
-  subject: string
-  duration: number
-  outcomes: Outcome[]
-  objectives: string
-  materials: string[]
-  priorKnowledge: string
-  activities: TimedActivity[]
-  assessment: string
-  differentiation: string
-  extensions: string
-  references: string
-  rubric: Rubric
-  tableContent: Row[]
-}
-
-export type RubricLevel = {
-  label: string
-  descriptor: string
-}
-
-export type RubricCriterion = {
-  id: string
-  name: string
-  levels: RubricLevel[]
-}
-
-export type Rubric = {
-  criteria: RubricCriterion[]
 }
