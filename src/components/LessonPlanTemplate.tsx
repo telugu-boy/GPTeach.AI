@@ -15,7 +15,7 @@ JSON Schema for the 'tableContent' property of a Plan object:
   }
 ]
 */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus, Trash2, Split } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -31,12 +31,20 @@ import {
 } from '../features/plans/plansSlice';
 import InlineToolbarEditor from './InlineToolbarEditor';
 import ExportControls from './ExportControls';
+import { useSelector as useReduxSelector } from 'react-redux';
+import { loadCurriculumData } from '../services/curriculumDataService';
 
 export default function LessonPlanTemplate() {
   const dispatch = useDispatch();
   const plans = useSelector((s: RootState) => s.plans.items);
   const currentId = useSelector((s: RootState) => s.plans.currentId) || plans[0]?.id;
   const plan = plans.find(p => p.id === currentId);
+  const highlightCellId = useSelector((s: RootState) => (s as any).ui?.highlightCellId) as string | undefined;
+
+  // Load curriculum data on mount
+  useEffect(() => {
+    loadCurriculumData().catch(console.error);
+  }, []);
 
   if (!plan) {
     return (
@@ -47,6 +55,14 @@ export default function LessonPlanTemplate() {
   }
 
   const { tableContent: planRows, id: planId } = plan;
+  
+  // Build context for AI suggestions
+  const lessonContext = `Lesson Plan: ${plan.title || 'Untitled'}. ${
+    planRows
+      .slice(0, 5)
+      .map(row => row.cells.map(cell => cell.content).join(' '))
+      .join(' ')
+  }`;
 
   return (
     <div className="relative h-full w-full overflow-auto">
@@ -92,13 +108,15 @@ export default function LessonPlanTemplate() {
                 {row.cells.map((cell, cellIndex) => (
                   <React.Fragment key={cell.id}>
                     <Panel defaultSize={cell.size || (100 / row.cells.length)} minSize={10}>
-                      <div className="relative h-full group/cell">
+                      <div className={`relative h-full group/cell ${highlightCellId === cell.id ? 'rounded-lg ring-2 ring-emerald-400/90 shadow-[0_0_0_8px_rgba(16,185,129,0.12)] bg-emerald-100/35 dark:bg-emerald-900/20 transition-all duration-300 animate-[pulse_2s_ease-in-out_infinite]' : ''}`}>
                         <InlineToolbarEditor
                           value={cell.content}
                           onChange={(newContent) => dispatch(updatePlanCell({ planId, rowId: row.id, cellId: cell.id, content: newContent }))}
                           placeholder={cell.placeholder}
+                          enableAISuggestions={true}
+                          context={lessonContext}
                         />
-                        <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                        <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/cell:opacity-100 transition-opacity z-10">
                           <button 
                             onClick={() => dispatch(splitPlanCell({ planId, rowId: row.id, cellId: cell.id }))}
                             className="p-1.5 rounded-lg bg-white/90 hover:bg-emerald-50 dark:bg-slate-700/90 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 shadow-sm backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50 transition-all hover:scale-105" 

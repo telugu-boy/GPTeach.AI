@@ -17,27 +17,6 @@ export type TimedActivity = {
   details: string
 }
 
-export type Plan = {
-  id: string
-  createdAt: string
-  updatedAt: string
-  templateId?: string
-  title: string
-  grade: string
-  subject: string
-  duration: number
-  outcomes: Outcome[]
-  objectives: string
-  materials: string[]
-  priorKnowledge: string
-  activities: TimedActivity[]
-  assessment: string
-  differentiation: string
-  extensions: string
-  references: string
-  rubric: Rubric
-}
-
 export type Class = {
   id: string
   name: string

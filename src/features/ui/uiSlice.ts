@@ -5,12 +5,14 @@ export type UIState = {
   theme: 'light' | 'dark' | 'system'
   loading: boolean
   promptPreviewOpen: boolean
+  highlightCellId?: string
 }
 
 const initialState: UIState = {
   theme: 'light',
   loading: false,
   promptPreviewOpen: true,
+  highlightCellId: undefined,
 }
 
 const uiSlice = createSlice({
@@ -31,9 +33,12 @@ const uiSlice = createSlice({
     },
     setPromptPreviewOpen(state, action: PayloadAction<boolean>) {
       state.promptPreviewOpen = action.payload
+    },
+    setHighlightCellId(state, action: PayloadAction<string | undefined>) {
+      state.highlightCellId = action.payload
     }
   }
 })
 
-export const { setTheme, setLoading, setPromptPreviewOpen } = uiSlice.actions
+export const { setTheme, setLoading, setPromptPreviewOpen, setHighlightCellId } = uiSlice.actions
 export default uiSlice.reducer
