@@ -5,6 +5,48 @@ export type Outcome = {
   code: string // e.g., 'ELA6-1.1'
   description: string
   jurisdiction: 'Alberta' | 'Other'
+  gradeLabel?: string
+  strand?: string
+  strandSlug?: string
+}
+
+export type TimedActivity = {
+  id: string
+  minutes: number
+  title: string
+  details: string
+}
+
+export type Plan = {
+  id: string
+  createdAt: string
+  updatedAt: string
+  templateId?: string
+  title: string
+  grade: string
+  subject: string
+  duration: number
+  outcomes: Outcome[]
+  objectives: string
+  materials: string[]
+  priorKnowledge: string
+  activities: TimedActivity[]
+  assessment: string
+  differentiation: string
+  extensions: string
+  references: string
+  rubric: Rubric
+}
+
+export type Class = {
+  id: string
+  name: string
+  section: string
+  grade?: string
+  subject?: string
+  semester?: string
+  color: string;
+  archived?: boolean;
 }
 
 export type TemplateField =
