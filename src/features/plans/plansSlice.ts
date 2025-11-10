@@ -241,6 +241,57 @@ const plansSlice = createSlice({
             plan.tableContent = plan.tableContent.filter(row => row.id !== action.payload.rowId);
         }
     },
+    resizePlanRow(state, action: PayloadAction<{ planId: string; rowId: string; sizes: number[] }>) {
+        const plan = state.items.find(p => p.id === action.payload.planId);
+        if (plan) {
+            const row = plan.tableContent.find(r => r.id === action.payload.rowId);
+            if (row) {
+                row.cells.forEach((cell, index) => {
+                    if (action.payload.sizes[index] !== undefined) {
+                        cell.size = action.payload.sizes[index];
+                    }
+                });
+            }
+        }
+    },
+    splitPlanCell(state, action: PayloadAction<{ planId: string; rowId: string; cellId: string }>) {
+        const plan = state.items.find(p => p.id === action.payload.planId);
+        if (plan) {
+            const row = plan.tableContent.find(r => r.id === action.payload.rowId);
+            if (row) {
+                const cellIndex = row.cells.findIndex(c => c.id === action.payload.cellId);
+                if (cellIndex >= 0) {
+                    const originalCell = row.cells[cellIndex];
+                    const newSize = (originalCell.size || 100 / row.cells.length) / 2;
+                    originalCell.size = newSize;
+                    const newCell: Cell = {
+                        id: nanoid(),
+                        content: '',
+                        placeholder: 'New cell',
+                        size: newSize
+                    };
+                    row.cells.splice(cellIndex + 1, 0, newCell);
+                }
+            }
+        }
+    },
+    mergePlanCell(state, action: PayloadAction<{ planId: string; rowId: string; cellId: string }>) {
+        const plan = state.items.find(p => p.id === action.payload.planId);
+        if (plan) {
+            const row = plan.tableContent.find(r => r.id === action.payload.rowId);
+            if (row && row.cells.length > 1) {
+                const cellIndex = row.cells.findIndex(c => c.id === action.payload.cellId);
+                if (cellIndex >= 0) {
+                    row.cells.splice(cellIndex, 1);
+                    // Redistribute sizes evenly
+                    const evenSize = 100 / row.cells.length;
+                    row.cells.forEach(cell => {
+                        cell.size = evenSize;
+                    });
+                }
+            }
+        }
+    },
     applyTemplateToPlan(state, action: PayloadAction<{ planId: string; fields: TemplateField[] }>) {
         const plan = state.items.find(p => p.id === action.payload.planId);
         if (plan) {
@@ -253,6 +304,7 @@ const plansSlice = createSlice({
 export const {
   createPlan, setCurrentPlan, updatePlan, deletePlan,
   setOutcomesForPlan, updatePlanCell, addPlanRow, removePlanRow,
+  resizePlanRow, splitPlanCell, mergePlanCell,
   applyTemplateToPlan
 } = plansSlice.actions
 

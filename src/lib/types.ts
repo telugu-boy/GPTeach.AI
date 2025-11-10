@@ -83,7 +83,8 @@ export type Cell = {
   id: string;
   content: string; // HTML content from the editor
   placeholder: string;
-  colSpan?: number;
+  colSpan?: number; // For backward compatibility
+  size?: number; // Width percentage (0-100) for resizable panels
 };
 
 export type Row = {
