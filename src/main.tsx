@@ -32,7 +32,6 @@ const router = createBrowserRouter([
       { path: 'planner', element: <LessonPlanner /> },
       { path: 'templates', element: <Templates /> },
       { path: 'outcomes', element: <Outcomes /> },
-      { path: 'library', element: <Library /> },
       { path: 'settings', element: <Settings /> },
     ],
   },
