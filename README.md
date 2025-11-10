@@ -3,7 +3,7 @@
 
 Glassmorphic React + TypeScript app for generating and editing lesson plans from prompts, templates, or curriculum outcomes (Alberta POS-ready, extensible to others).
 
-## Stack
+## Tech Stack
 - React + TypeScript + Vite
 - Redux Toolkit + localStorage persistence
 - React Router

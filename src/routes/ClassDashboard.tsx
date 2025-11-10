@@ -6,16 +6,17 @@ import { createPlan, setCurrentPlan, importUploadedPlan, duplicatePlan, pasteCop
 import { updateClass } from '../features/classes/classesSlice';
 import { duplicateFolder, updateFolder, moveFolder, pasteCopiedFolder, softDeleteFolder } from '../features/folders/foldersSlice';
 import { copyItem, clearClipboard } from '../features/clipboard/clipboardSlice';
-import { Plus, Upload, MoreVertical, Search, FileText, Folder as FolderIcon, Copy, Trash2, Move, CopyPlus, Edit, ClipboardPaste, ArrowRight } from 'lucide-react';
+import { Plus, Upload, MoreVertical, Search, FileText, Folder as FolderIcon, Copy, Trash2, Move, CopyPlus, Edit, ClipboardPaste, ArrowRight, Calendar } from 'lucide-react';
 import type { Plan, Folder } from '../lib/types';
 import { cn } from '../lib/utils';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import MoveItemModal from '../components/MoveItemModal';
 import CreateFolderModal from '../components/CreateFolderModal';
 import CreatePlanModal, { type CreatePlanData } from '../components/CreatePlanModal';
+import AddToCalendarModal from '../components/AddToCalendarModal'; // <-- ADD THIS IMPORT
 import { DndContext, PointerSensor, useSensor, useSensors, useDraggable, useDroppable } from '@dnd-kit/core';
 
-const ItemMenu = ({ item, type, onOpenMove, onConfirmDelete, onEdit }: { item: Plan | Folder, type: 'plan' | 'folder', onOpenMove: () => void, onConfirmDelete: () => void, onEdit: () => void }) => {
+const ItemMenu = ({ item, type, onOpenMove, onConfirmDelete, onEdit, onOpenCalendar }: { item: Plan | Folder, type: 'plan' | 'folder', onOpenMove: () => void, onConfirmDelete: () => void, onEdit: () => void, onOpenCalendar?: () => void }) => {
     const dispatch = useDispatch();
     const menuRef = useRef<HTMLDivElement>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,6 +44,11 @@ const ItemMenu = ({ item, type, onOpenMove, onConfirmDelete, onEdit }: { item: P
         onEdit();
         setIsMenuOpen(false);
     }
+    
+    const handleCalendar = () => {
+        if (onOpenCalendar) onOpenCalendar();
+        setIsMenuOpen(false);
+    }
 
     return (
         <div className="relative" ref={menuRef} onClick={e => e.stopPropagation()}>
@@ -50,9 +56,12 @@ const ItemMenu = ({ item, type, onOpenMove, onConfirmDelete, onEdit }: { item: P
                 <MoreVertical size={20} />
             </button>
             {isMenuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-20">
+                <div className="absolute right-0 top-full mt-1 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg z-20">
                     <ul className="py-1 text-sm text-slate-700 dark:text-slate-300">
                         <li><button onClick={handleEdit} className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><Edit size={16}/> Edit</button></li>
+                        {type === 'plan' && onOpenCalendar && (
+                            <li><button onClick={handleCalendar} className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><Calendar size={16}/> Add to Calendar</button></li>
+                        )}
                         <li><button onClick={handleCopy} className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><Copy size={16}/> Copy</button></li>
                         <li><button onClick={onOpenMove} className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><Move size={16}/> Move</button></li>
                         <li><button onClick={handleDuplicate} className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2"><CopyPlus size={16}/> Duplicate</button></li>
@@ -65,7 +74,7 @@ const ItemMenu = ({ item, type, onOpenMove, onConfirmDelete, onEdit }: { item: P
     );
 }
 
-const LessonPlanCard = ({ plan, onOpenMove, onConfirmDelete }: { plan: Plan; onOpenMove: (plan: Plan) => void; onConfirmDelete: (plan: Plan) => void; }) => {
+const LessonPlanCard = ({ plan, onOpenMove, onConfirmDelete, onOpenCalendar }: { plan: Plan; onOpenMove: (plan: Plan) => void; onConfirmDelete: (plan: Plan) => void; onOpenCalendar: (plan: Plan) => void; }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [isEditing, setIsEditing] = useState(false);
@@ -117,7 +126,7 @@ const LessonPlanCard = ({ plan, onOpenMove, onConfirmDelete }: { plan: Plan; onO
                     Open File <ArrowRight size={14}/>
                 </button>
                 <div onClick={e => e.stopPropagation()}>
-                    <ItemMenu item={plan} type="plan" onOpenMove={() => onOpenMove(plan)} onConfirmDelete={() => onConfirmDelete(plan)} onEdit={() => setIsEditing(true)} />
+                    <ItemMenu item={plan} type="plan" onOpenMove={() => onOpenMove(plan)} onConfirmDelete={() => onConfirmDelete(plan)} onEdit={() => setIsEditing(true)} onOpenCalendar={() => onOpenCalendar(plan)} />
                 </div>
             </div>
         </div>
@@ -199,6 +208,16 @@ const ClassDashboard = () => {
   const [isEditingClassName, setIsEditingClassName] = useState(false);
   const [className, setClassName] = useState(classItem?.name || '');
   const [isFileDraggingOver, setIsFileDraggingOver] = useState(false);
+
+  // --- NEW STATE FOR CALENDAR MODAL --- //
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+  const [planToAddToCalendar, setPlanToAddToCalendar] = useState<Plan | null>(null);
+
+  const handleOpenCalendarModal = (plan: Plan) => {
+    setPlanToAddToCalendar(plan);
+    setIsCalendarModalOpen(true);
+  };
+
 
   useEffect(() => {
     if (classItem) {
@@ -285,8 +304,6 @@ const ClassDashboard = () => {
     if ('folderId' in itemToModify) { // It's a plan
         dispatch(softDeletePlan(itemToModify.id));
     } else { // It's a folder
-        // For simplicity, we are only soft-deleting the folder itself, not its contents.
-        // A more robust implementation might recursively delete children.
         dispatch(softDeleteFolder(itemToModify.id));
     }
     setIsDeleteModalOpen(false);
@@ -314,7 +331,7 @@ const ClassDashboard = () => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // User must drag 8px before a drag is initiated
+        distance: 8,
       },
     })
   );
@@ -331,7 +348,6 @@ const ClassDashboard = () => {
       if(activeItem.type === 'plan') {
           dispatch(movePlan({ planId: active.id, targetClassId: classId!, targetFolderId: targetFolderId }));
       } else if (activeItem.type === 'folder') {
-          // Prevent dropping a folder into itself
           if (active.id !== targetFolderId) {
               dispatch(moveFolder({ folderId: active.id, targetClassId: classId!, targetParentId: targetFolderId }));
           }
@@ -436,7 +452,9 @@ const ClassDashboard = () => {
                   key={item.id} 
                   plan={item} 
                   onOpenMove={() => handleOpenMoveModal(item)} 
-                  onConfirmDelete={() => handleOpenDeleteModal(item)} />
+                  onConfirmDelete={() => handleOpenDeleteModal(item)}
+                  onOpenCalendar={handleOpenCalendarModal}
+                />
             ))}
           </div>
           {items.length === 0 && (
@@ -478,6 +496,11 @@ const ClassDashboard = () => {
         isOpen={isCreatePlanModalOpen}
         onClose={() => setIsCreatePlanModalOpen(false)}
         onCreate={handleConfirmCreatePlan}
+      />
+      <AddToCalendarModal
+        isOpen={isCalendarModalOpen}
+        onClose={() => setIsCalendarModalOpen(false)}
+        plan={planToAddToCalendar}
       />
     </div>
   );

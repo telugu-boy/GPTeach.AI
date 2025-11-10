@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
-import { Home, FileText, ClipboardEdit, LayoutTemplate, ListChecks, Library, Settings, BookCopy, Archive, ChevronLeft } from 'lucide-react';
+import { Home, FileText, ClipboardEdit, LayoutTemplate, ListChecks, Library, Settings, BookCopy, Archive, ChevronLeft, Calendar } from 'lucide-react';
 import { cn } from '../lib/utils';
 import UserControl from './UserControl';
 
@@ -53,6 +53,11 @@ export default function Nav({ isCollapsed, onToggle }: { isCollapsed: boolean, o
         <NavLink to="/drafts" className={linkClass}>
           <FileText size={20} className="flex-shrink-0" />
           <span className={textClass}>Drafts</span>
+        </NavLink>
+        {/* --- ADDED CALENDAR LINK --- */}
+        <NavLink to="/calendar" className={linkClass}>
+          <Calendar size={20} className="flex-shrink-0" />
+          <span className={textClass}>Calendar</span>
         </NavLink>
         
         <div className={cn("pt-4", isCollapsed ? 'mt-2' : 'mt-4 border-t border-slate-200 dark:border-slate-700')}>
