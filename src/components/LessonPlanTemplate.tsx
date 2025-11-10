@@ -215,18 +215,33 @@ function RichTextCellEditor({ value, onChange, placeholder }: { value: string; o
         Placeholder.configure({ placeholder: placeholder || '...' }),
         Highlight.configure({ multicolor: true }),
     ],
-    content: value || '',
+    content: value, // Set initial content
     editorProps: { attributes: { class: 'prose prose-sm max-w-none focus:outline-none px-4 py-3 min-h-[52px] h-full text-[15px] leading-relaxed' } },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     onFocus: ({ editor }) => setEditor(editor),
     onBlur: ({ event }) => {
         const relatedTarget = event.relatedTarget as HTMLElement;
         if (relatedTarget?.closest('.formatting-toolbar-container')) {
-            return; // Don't blur if focus is moving to the toolbar
+            return;
         }
         setEditor(null);
     },
   });
+
+  // ***** THE CRITICAL FIX IS HERE *****
+  // This useEffect hook listens for changes to the `value` prop (from Redux)
+  // and manually updates the Tiptap editor's content if it's different.
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) {
+      const isSame = editor.getHTML() === value;
+      if (!isSame) {
+        // `setContent` updates the editor. `false` prevents this programmatic change
+        // from creating an undo step, which is desired behavior.
+        editor.commands.setContent(value, false);
+      }
+    }
+  }, [value, editor]);
+
   return <EditorContent editor={editor} />;
 }
 
@@ -294,7 +309,6 @@ function SortableCell({ cell, planId, rowId }: { cell: Cell; planId: string; row
                   <>
                     <button {...listeners} className="p-1 rounded-md text-slate-500 cursor-grab active:cursor-grabbing hover:bg-slate-100 dark:hover:bg-slate-700" title="Move Cell"><GripVertical size={14} /></button>
                     <button onClick={() => setIsMenuOpen(true)} className="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700" title="More options"><ChevronDown size={14} /></button>
-                    <button ref={aiButtonRef} onClick={openAI} className="p-1 rounded-md text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30" title="AI Suggestions"><Sparkles size={14} /></button>
                   </>
                 )}
             </div>

@@ -148,7 +148,7 @@ export async function chatWithAI(
       model: MODEL_NAME,
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 2048, // Increased token limit for full lesson plans
       }
     });
 
@@ -170,7 +170,7 @@ export async function chatWithAI(
       history,
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 1000,
+        maxOutputTokens: 2048,
       },
     });
 
@@ -188,14 +188,15 @@ export async function chatWithAI(
     console.error('Error chatting with Gemini AI:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     
-    if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {
-      return 'We are being rate limited. Please wait a few seconds and try again.';
+    // **THE FIX**: Throw a real Error instead of returning an error string.
+    // This stops errors from ever being treated as valid content.
+    if (errorMessage.includes('rate limit') || errorMessage.includes('429') || errorMessage.includes('503') || errorMessage.includes('overloaded')) {
+      throw new Error('The AI model is currently overloaded. Please try again in a few moments.');
     }
     if (errorMessage.includes('SAFETY')) {
-      return 'The response was blocked by safety filters. Please try rephrasing your request.';
+      throw new Error('The response was blocked due to safety filters. Please try rephrasing your request.');
     }
     
-    return 'Sorry, there was an error processing your request: ' + errorMessage;
+    throw new Error('An unexpected error occurred while communicating with the AI.');
   }
 }
-

@@ -1,8 +1,17 @@
 // OpenRouter API Service
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+if (!OPENROUTER_API_KEY) {
+  console.error('OpenRouter API key is missing. Please set VITE_OPENROUTER_API_KEY in your .env file.');
+  // This will prevent the app from running without the key, making it fail-fast.
+  throw new Error('OpenRouter API key is missing. Set VITE_OPENROUTER_API_KEY in your .env file.');
+}
+
+
 // Model preference order (free tiers first). We'll try each in order on 429/provider errors.
 const MODEL_CANDIDATES = [
+  'google/gemini-2.0-flash-lite-001',
   'minimax/minimax-m2:free',                   // MiniMax M2 (free)
   'deepseek/deepseek-chat-v3-0324:free',       // DeepSeek V3 (free)
   'meta-llama/llama-3.2-3b-instruct:free',     // Llama 3.2 3B (free)
@@ -138,37 +147,33 @@ export async function chatWithAI(
   try {
     const messages: ConversationMessage[] = [];
     
-    // Add system message
     messages.push({ 
       role: 'system', 
       content: 'You are an AI teaching assistant helping teachers create lesson plans. Provide helpful, specific, and practical advice.' 
     });
     
-    // Add conversation history if provided
     if (conversationHistory && conversationHistory.length > 0) {
       messages.push(...conversationHistory);
     }
     
-    // Add current message
-    if (context) {
-      messages.push({ role: 'user', content: `Context: ${context}\n\nQuestion: ${message}` });
-    } else {
-      messages.push({ role: 'user', content: message });
-    }
+    const content = context ? `Context: ${context}\n\nQuestion: ${message}` : message;
+    messages.push({ role: 'user', content });
     
     const data = await callWithModelFallback({
       messages,
       temperature: 0.7,
-      max_tokens: 1000,
+      max_tokens: 2048,
     });
     return data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
   } catch (error) {
-    console.error('Error chatting with AI:', error);
-    const msg = (error as Error)?.message || '';
-    if (msg.includes('429')) {
-      return 'We are being rate limited by the model provider. Please wait a few seconds and try again.';
+    console.error('Error chatting with OpenRouter AI:', error);
+    const err = error as Error;
+
+    if (err.message.includes('429') || err.message.includes('503') || err.message.toLowerCase().includes('overloaded')) {
+      throw new Error('The AI model is currently overloaded. Please try again in a few moments.');
     }
-    return 'Sorry, there was an error processing your request.';
+    
+    throw err; // Re-throw the original error for the UI to handle
   }
 }
 
@@ -182,19 +187,16 @@ async function callWithModelFallback(baseBody: any): Promise<any> {
     } catch (err) {
       const message = (err as Error)?.message || 'Unknown error';
       errors.push(`[${model}] ${message}`);
-      // Only fall through on rate limit / provider errors; otherwise rethrow
       if (!message.includes('429') && !message.toLowerCase().includes('provider')) {
         throw err;
       }
-      // continue to next model
     }
   }
-  throw new Error(`All models failed:\n${errors.join('\n')}`);
+  throw new Error(`All available AI models failed. Please try again later. Errors:\n${errors.join('\n')}`);
 }
 
 async function callOpenRouterWithRetry(body: any): Promise<any> {
   let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     attempt++;
     const response = await fetch(API_URL, {
@@ -212,12 +214,10 @@ async function callOpenRouterWithRetry(body: any): Promise<any> {
       return await response.json();
     }
 
-    // Parse error for decision
     const status = response.status;
     const errorPayload = await safeParseError(response);
     const message = buildErrorMessage(errorPayload, status);
 
-    // Handle rate limits / transient errors with backoff
     if ((status === 429 || status === 503) && attempt < MAX_RETRIES) {
       const retryAfterHeader = response.headers.get('retry-after');
       const retryAfterMs = retryAfterHeader ? parseFloat(retryAfterHeader) * 1000 : undefined;
@@ -257,4 +257,3 @@ function sleep(ms: number): Promise<void> {
 function jitter(maxJitterMs: number): number {
   return Math.floor(Math.random() * maxJitterMs);
 }
-
