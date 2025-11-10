@@ -50,10 +50,11 @@ export default function Nav({ isCollapsed, onToggle }: { isCollapsed: boolean, o
           <Archive size={20} className="flex-shrink-0" />
           <span className={textClass}>Archived Classes</span>
         </NavLink>
+        {/*
         <NavLink to="/drafts" className={linkClass}>
           <FileText size={20} className="flex-shrink-0" />
           <span className={textClass}>Drafts</span>
-        </NavLink>
+        </NavLink>*/}
         {/* --- ADDED CALENDAR LINK --- */}
         <NavLink to="/calendar" className={linkClass}>
           <Calendar size={20} className="flex-shrink-0" />
@@ -77,10 +78,12 @@ export default function Nav({ isCollapsed, onToggle }: { isCollapsed: boolean, o
               <ListChecks size={20} className="flex-shrink-0" />
               <span className={textClass}>Outcomes</span>
             </NavLink>
+            {/*
             <NavLink to="/library" className={linkClass}>
               <Library size={20} className="flex-shrink-0" />
               <span className={textClass}>Materials</span>
             </NavLink>
+            */}
           </div>
         </div>
       </nav>
